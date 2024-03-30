@@ -1,24 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./components/auth/Login";
+import UserList from "./components/user/UserList";
+import GroupList from "./components/group/GroupList";
+import useAuth from "./hooks/useAuth";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
+  const { isAuthenticated, isAdmin } = useAuth();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+        />
+
+        <Route
+          path="/users"
+          element={
+            isAuthenticated && isAdmin ? (
+              <UserList />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/groups"
+          element={
+            isAuthenticated && !isAdmin ? (
+              <GroupList />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/"
+          element={<Navigate to={isAdmin ? "/users" : "/groups"} />}
+        />
+      </Routes>
+    </Router>
   );
 }
 
